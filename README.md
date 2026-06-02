@@ -73,6 +73,33 @@ npm run dev
 
 Open the URL shown in the terminal (usually `http://localhost:5173`).
 
+## Docker
+
+The production image builds the Vite app and serves it with nginx. Supabase credentials are baked in at **build time** (Vite requirement), so pass them as build args.
+
+### Using Docker Compose
+
+Ensure `.env` contains your Supabase values, then:
+
+```bash
+docker compose up --build
+```
+
+Open [http://localhost:8080](http://localhost:8080).
+
+### Using Docker directly
+
+```bash
+docker build \
+  --build-arg VITE_SUPABASE_URL=https://your-project-id.supabase.co \
+  --build-arg VITE_SUPABASE_ANON_KEY=your-anon-key-here \
+  -t community-care-board .
+
+docker run --rm -p 8080:80 community-care-board
+```
+
+Rebuild the image whenever you change Supabase credentials or app code.
+
 ## Scripts
 
 | Command | Description |
@@ -98,6 +125,9 @@ Open the URL shown in the terminal (usually `http://localhost:5173`).
 │       └── PostForm.jsx     # Modal form for new posts
 ├── supabase/
 │   └── schema.sql           # Database table and RLS policies
+├── Dockerfile               # Multi-stage production build
+├── docker-compose.yml       # Run with Docker Compose
+├── nginx.conf               # SPA routing for production container
 ├── .env.example             # Template for environment variables
 └── vite.config.js           # Vite + React + Tailwind configuration
 ```
