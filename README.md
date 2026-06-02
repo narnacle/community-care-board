@@ -100,6 +100,34 @@ docker run --rm -p 8080:80 community-care-board
 
 Rebuild the image whenever you change Supabase credentials or app code.
 
+### Publish to Docker Hub
+
+**Local publish** (requires Docker Desktop running and `docker login`):
+
+```powershell
+.\scripts\publish-docker.ps1
+```
+
+Set `DOCKERHUB_USERNAME` if your Docker Hub username is not `narnacle`:
+
+```powershell
+$env:DOCKERHUB_USERNAME = "your-dockerhub-username"
+.\scripts\publish-docker.ps1
+```
+
+**GitHub Actions publish** — add these repository secrets under **Settings → Secrets and variables → Actions**:
+
+| Secret | Value |
+|--------|-------|
+| `DOCKERHUB_USERNAME` | Your Docker Hub username |
+| `DOCKERHUB_TOKEN` | Docker Hub access token |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon public key |
+
+Then run the **Publish Docker Image** workflow from the **Actions** tab, or push to `main` to trigger it automatically.
+
+Published image: `narnacle/community-care-board:latest`
+
 ## Scripts
 
 | Command | Description |
