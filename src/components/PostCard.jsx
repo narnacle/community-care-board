@@ -2,10 +2,12 @@ import { CATEGORY_COLORS, formatDate } from '../constants'
 
 export default function PostCard({ post, onClaim }) {
   const isOpen = post.status === 'OPEN'
+  const isNeed = post.type === 'NEED'
   const badgeClass = CATEGORY_COLORS[post.category] ?? 'bg-slate-100 text-slate-800 ring-slate-200'
+  const borderClass = isNeed ? 'border-orange-200' : 'border-emerald-200'
 
   return (
-    <article className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <article className={`flex flex-col rounded-2xl border-2 bg-white p-5 shadow-sm transition hover:shadow-md ${borderClass}`}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${badgeClass}`}>
           {post.category}

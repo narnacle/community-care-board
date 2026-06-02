@@ -48,7 +48,7 @@ Find these in the Supabase Dashboard under **Settings → API**:
 
 | Variable | Source |
 |----------|--------|
-| `VITE_SUPABASE_URL` | Project URL |
+| `VITE_SUPABASE_URL` | Project URL (base only — no `/rest/v1/` suffix) |
 | `VITE_SUPABASE_ANON_KEY` | `anon` `public` key |
 
 The `VITE_` prefix is required so Vite exposes the values to the client. Use only the **anon** key in the frontend — never the service role key.

@@ -9,23 +9,70 @@ const emptyForm = {
   contact_info: '',
 }
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+}
+
+function isValidPhone(value) {
+  const trimmed = value.trim()
+  const digits = trimmed.replace(/\D/g, '')
+  return digits.length >= 10 && /^[\d\s+().-]+$/.test(trimmed)
+}
+
+function isValidContactInfo(value) {
+  return isValidEmail(value) || isValidPhone(value)
+}
+
+function validateForm(form) {
+  const errors = {}
+
+  if (form.description.trim().length < 10) {
+    errors.description = 'Description must be at least 10 characters.'
+  }
+
+  if (!isValidContactInfo(form.contact_info)) {
+    errors.contact_info = 'Enter a valid email address or phone number.'
+  }
+
+  return errors
+}
+
 export default function PostForm({ isOpen, onClose, onSubmit, isSubmitting }) {
   const [form, setForm] = useState(emptyForm)
+  const [agreedToGuidelines, setAgreedToGuidelines] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState({})
 
   if (!isOpen) return null
+
+  function resetForm() {
+    setForm(emptyForm)
+    setAgreedToGuidelines(false)
+    setFieldErrors({})
+  }
 
   function handleChange(event) {
     const { name, value } = event.target
     setForm((prev) => ({ ...prev, [name]: value }))
+    setFieldErrors((prev) => {
+      if (!prev[name]) return prev
+      const next = { ...prev }
+      delete next[name]
+      return next
+    })
   }
 
   function handleSubmit(event) {
     event.preventDefault()
-    onSubmit(form, () => setForm(emptyForm))
+    const errors = validateForm(form)
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      return
+    }
+    onSubmit(form, resetForm)
   }
 
   function handleClose() {
-    setForm(emptyForm)
+    resetForm()
     onClose()
   }
 
@@ -131,9 +178,16 @@ export default function PostForm({ isOpen, onClose, onSubmit, isSubmitting }) {
               onChange={handleChange}
               rows={4}
               placeholder="What do you need or what can you offer?"
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className={`w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
+                fieldErrors.description
+                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20'
+              }`}
               required
             />
+            {fieldErrors.description && (
+              <p className="mt-1 text-sm text-rose-600">{fieldErrors.description}</p>
+            )}
           </div>
 
           <div>
@@ -146,11 +200,29 @@ export default function PostForm({ isOpen, onClose, onSubmit, isSubmitting }) {
               type="text"
               value={form.contact_info}
               onChange={handleChange}
-              placeholder="Phone, email, or preferred contact"
-              className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="you@email.com or (555) 123-4567"
+              className={`w-full rounded-xl border px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${
+                fieldErrors.contact_info
+                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20'
+                  : 'border-slate-300 focus:border-emerald-500 focus:ring-emerald-500/20'
+              }`}
               required
             />
+            {fieldErrors.contact_info && (
+              <p className="mt-1 text-sm text-rose-600">{fieldErrors.contact_info}</p>
+            )}
           </div>
+
+          <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+            <input
+              type="checkbox"
+              checked={agreedToGuidelines}
+              onChange={(event) => setAgreedToGuidelines(event.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              required
+            />
+            <span className="text-sm text-slate-700">I agree to public safety guidelines</span>
+          </label>
 
           <div className="flex gap-3 pt-2">
             <button
@@ -162,7 +234,7 @@ export default function PostForm({ isOpen, onClose, onSubmit, isSubmitting }) {
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !agreedToGuidelines}
               className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? 'Posting…' : 'Submit post'}
