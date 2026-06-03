@@ -1,6 +1,5 @@
 services:
   web:
-    image: narnacle/community-care-board:latest
     build:
       context: .
       dockerfile: Dockerfile
